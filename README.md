@@ -1,2 +1,2 @@
 # scrapper
-Python lab for PAK Skyscanner :)
+Python project for PAK Skyscanner :)
