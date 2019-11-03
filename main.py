@@ -41,4 +41,7 @@ if len(TRIP) == 3:
     ROUND_TRIP = False
 else:
     ROUND_TRIP = True
-scrapper.scrap(TRIP, CHECK_SCHEDULE, ROUND_TRIP, URL)
+RESERVATION = scrapper.scrap(TRIP, CHECK_SCHEDULE, ROUND_TRIP, URL)
+print(RESERVATION[0])
+for flight in RESERVATION[1]:
+    print(flight)
