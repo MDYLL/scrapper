@@ -5,11 +5,10 @@ module of functions
 import datetime
 import re
 import sqlite3
-from io import StringIO
 
 import requests
 import urllib3
-from lxml import etree
+from lxml import html
 
 from flight import Flight
 
@@ -36,7 +35,7 @@ def get_xml(url, data_request):
     creating etree object
     :param url: url for request
     :param data_request: dict of data
-    :return: etree object
+    :return: html-content
     """
     header = {'Accept-Encoding': 'identity'}
     try:
@@ -44,12 +43,10 @@ def get_xml(url, data_request):
                                 params=data_request, headers=header)
     except requests.exceptions.RequestException:
         return None
-    parser = etree.HTMLParser()
-    tree_xml = etree.parse(StringIO(response.content.decode("utf-8")), parser)
-    return tree_xml
+    return response.content
 
 
-def parse_xml(trip, tree_xml):
+def parse_xml(trip, content):
     """
     parsing etree object
     :param trip: TimeTable
@@ -60,11 +57,14 @@ def parse_xml(trip, tree_xml):
     index_1_trip = 2
     while True:
         try:
-            to_direction = tree_xml.getroot()[1][4][0][2][2][7][index_1_trip]
+            root = html.fromstring(content)
+            to_direction = root.xpath(
+                '//table[contains(@class,"flight_selection") '
+                'and contains(@class, "current-date")]')[0][index_1_trip]
+            td_dep = to_direction[0][1]
+            td_arr = to_direction[0][3]
         except IndexError:
             break
-        td_dep = to_direction[0][1]
-        td_arr = to_direction[0][3]
         index_1_trip_class = 5
         while True:
             try:
@@ -84,11 +84,14 @@ def parse_xml(trip, tree_xml):
     index_2_trip = 2
     while True:
         try:
-            to_direction = tree_xml.getroot()[1][4][0][2][3][7][index_2_trip]
+            root = html.fromstring(content)
+            to_direction = root.xpath(
+                '//table[contains(@class,"flight_selection") '
+                'and contains(@class, "current-date")]')[1][index_2_trip]
+            td_dep = to_direction[0][1]
+            td_arr = to_direction[0][3]
         except IndexError:
             break
-        td_dep = to_direction[0][1]
-        td_arr = to_direction[0][3]
         index_2_trip_class = 5
         while True:
             try:
@@ -173,15 +176,16 @@ def get_iata_from_url(schedule_url):
     :param schedule_url: url for getting schedule
     :return: list of IATA
     """
-    tree_xml = get_xml(schedule_url, None)
-    if tree_xml is None:
+    content = get_xml(schedule_url, None)
+    if content is None:
         return None
     iata_list = list()
-    root = tree_xml.getroot()[1][0][0][1][0][0][0][5][0]
+    tree = html.fromstring(content)
+    tag = tree.xpath('//div[@align="center"]')
     string_index = 0
     while True:
         try:
-            data = root[string_index].tail
+            data = tag[0][0][string_index].tail
         except IndexError:
             break
         for each in re.split(' |,', data):
@@ -321,14 +325,13 @@ def get_data_from_schedule(url, iata1, iata2, date_trip):
         response = requests.post(url, data=data_request, verify=False)
     except requests.exceptions.RequestException:
         return None
-    parser = etree.HTMLParser()
-    tree_xml = etree.parse(StringIO(response.content.decode("utf-8")), parser)
     dates_1_trip = '-------'
     dates_2_trip = '-------'
+    root = html.fromstring(response.content).xpath('//tr[@align="center"]')
     flight_index = 1
     while True:
         try:
-            first_flight = tree_xml.getroot()[1][0][0][0][1][2][0][0][0][1][0][0][flight_index]
+            first_flight = root[flight_index]
         except IndexError:
             break
         for i in range(7):
