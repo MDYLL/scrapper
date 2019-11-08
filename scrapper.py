@@ -103,8 +103,8 @@ def scrap(trip, schedule, round_trip, url):
                     reservations[0] = "From " + trip[0] + " to " + trip[1] \
                                       + " " + str(date_flight)
                     reservations[0] += "\n"
-                    reservations[0] += "From " + trip[0] + " to " + trip[1] \
-                                       + " " + str(date_flight)
+                    reservations[0] += "From " + trip[1] + " to " + trip[0] \
+                                       + " " + str(date_flight_back)
                     for flights in flight_combination:
                         for flight in flights:
                             reservations[1].append(flight)
