@@ -2,7 +2,7 @@
 class Flight
 """
 
-import operations
+import checkdata
 
 
 class Flight:
@@ -20,8 +20,8 @@ class Flight:
         self.price = price
 
     def __repr__(self):
-        time_flight = operations.time_sub(self.time_arrive,
-                                          self.time_departure)
+        time_flight = checkdata.time_sub(self.time_arrive,
+                                         self.time_departure)
         while time_flight < 0:
             time_flight += 12 * 60
         return "FROM: %s DESTINATION: %s DEPART: %s ARRIVE: %s " \
