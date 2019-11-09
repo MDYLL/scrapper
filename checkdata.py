@@ -1,3 +1,7 @@
+"""
+module of functions for checking input data and making some summary
+"""
+
 import datetime
 
 
@@ -61,6 +65,7 @@ def check_return_flight(*args):
                       flight_[0].time_departure[-2:] != "PM")):
             check_combination.append(flight_)
     return check_combination
+
 
 def check_input_data(input_data, iata_list):
     """
