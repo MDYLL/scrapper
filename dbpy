@@ -2,10 +2,50 @@
 module of function for database
 """
 
-import datetime
 import sqlite3
 
-import parsing
+import checkdata
+
+
+class TimeTable:
+    """
+    initialization
+    """
+
+    def __init__(self, *args):
+        self.city_departure = args[0]
+        self.city_arrive = args[1]
+        self.date_1_trip = args[2]
+        if len(args) == 4:
+            self.date_2_trip = args[3]
+        else:
+            self.date_2_trip = 0
+
+
+class Flight:
+    """
+    class initialization and representative
+    """
+
+    def __init__(self, city_departure, city_destination, time_departure,
+                 time_arrive, service_class, price):
+        self.city_departure = city_departure
+        self.city_destination = city_destination
+        self.time_departure = time_departure
+        self.time_arrive = time_arrive
+        self.service_class = service_class
+        self.price = price
+
+    def __repr__(self):
+        time_flight = checkdata.time_sub(self.time_arrive,
+                                         self.time_departure)
+        while time_flight < 0:
+            time_flight += 12 * 60
+        return "FROM: %s DESTINATION: %s DEPART: %s ARRIVE: %s " \
+               "TIME FLIGHT: %s CLASS: %s PRICE: %s" % \
+               (self.city_departure, self.city_destination,
+                self.time_departure, self.time_arrive, str(time_flight // 60) +
+                ':' + str(time_flight % 60), self.service_class, self.price)
 
 
 def create_db(filename):
@@ -31,7 +71,7 @@ def init_db(filename, iata_list, prim_key):
     init database with empty information for each possible flight
     :param filename: file with database
     :param iata_list: iata list
-    :param pk: primary_key, index of first row's ID
+    :param prim_key: primary_key, index of first row's ID
     :return: nothing
     """
     conn = sqlite3.connect(filename)
@@ -74,33 +114,6 @@ def check_all_iata_in_db(filename, iata_list):
     return 1
 
 
-def fill_schedule_db(url, trip, filename):
-    """
-    fill schedule database file
-    :param url: schedule url
-    :param trip: flight information (IATA1,IATA2,dates)
-    :param filename: filename of database
-    :return: 0 if is ok, None - if no flight in schedule
-    """
-    date_1_trip = datetime.date(*list(map(int, trip[2].split('-'))))
-    schedule_data = xmlparspy.get_data_from_schedule(
-        url, trip[0], trip[1], date_1_trip)
-    if schedule_data is None:
-        return None
-    conn = sqlite3.connect(filename)
-    cursor = conn.cursor()
-    cursor.execute("""UPDATE flight SET SCHEDULE = ?
-            WHERE (DEPART_IATA = ? AND ARRIVE_IATA = ?)""",
-                   (schedule_data[0], trip[0], trip[1]))
-    conn.commit()
-    cursor.execute("""UPDATE flight SET SCHEDULE = ?
-            WHERE (DEPART_IATA = ? AND ARRIVE_IATA = ?)""",
-                   (schedule_data[1], trip[1], trip[0]))
-    conn.commit()
-    conn.close()
-    return 0
-
-
 def schedule(iata1, iata2, filename):
     """
     get schedule information from database
@@ -118,45 +131,23 @@ def schedule(iata1, iata2, filename):
     return data_row
 
 
-def check_schedule(trip, filename, url):
+def put_data_in_db(schedule_data, trip, filename):
     """
-    check trip in schedule
-    if schedule doesn't contain information => fill schedule from url
+    fill db
+    :param schedule_data: tuple of strings with possible days
+    for flight in format "++---++"
     :param trip: flight information (IATA1,IATA2,dates)
     :param filename: filename of database
-    :param url: schedule url
-    :return: tuple(list()) - possible dates for flight.
-    0 - exact, 1/2 - plus 1/2 day(s)
+    :return:
     """
-    date_1_trip = datetime.date(*list(map(int, trip[2].split('-'))))
-    date_2_trip = None
-    if len(trip) > 3:
-        date_2_trip = datetime.date(*list(map(int, trip[3].split('-'))))
     conn = sqlite3.connect(filename)
     cursor = conn.cursor()
-    sql = "SELECT * FROM flight WHERE (DEPART_IATA = ? AND ARRIVE_IATA = ?)"
-    cursor.execute(sql, (trip[0], trip[1]))
-    data_row = cursor.fetchall()
+    cursor.execute("""UPDATE flight SET SCHEDULE = ?
+            WHERE (DEPART_IATA = ? AND ARRIVE_IATA = ?)""",
+                   (schedule_data[0], trip[0], trip[1]))
+    conn.commit()
+    cursor.execute("""UPDATE flight SET SCHEDULE = ?
+            WHERE (DEPART_IATA = ? AND ARRIVE_IATA = ?)""",
+                   (schedule_data[1], trip[1], trip[0]))
+    conn.commit()
     conn.close()
-    if data_row[0][3] == "0000000":
-        if fill_schedule_db(url, trip, filename) is None:
-            return None
-
-    data_row1 = schedule(trip[0], trip[1], filename)
-    data_row2 = schedule(trip[1], trip[0], filename)
-    date_1_trip_weekday = date_1_trip.weekday()  # monday is 0
-    if date_2_trip is not None:
-        date_2_trip_weekday = date_2_trip.weekday()  # monday is 0
-    else:
-        date_2_trip_weekday = None
-    flight_possible = list()
-    flight_possible.append(list())
-    flight_possible.append(list())
-    for i in range(3):
-        if data_row1[0][3][(date_1_trip_weekday + i) % 7] == '+':
-            flight_possible[0].append(i)
-        if date_2_trip is not None and \
-                data_row2[0][3][(date_2_trip_weekday + i) % 7] == '+':
-            flight_possible[1].append(i)
-
-    return flight_possible
