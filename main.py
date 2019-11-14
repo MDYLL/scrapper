@@ -10,11 +10,10 @@ import sys
 
 import checkdata
 import scrapper
-import sql
+from scrapper import check_schedule
 
 DB_FILE = "schedule.db"
-SCHEDULE_URL = "https://www.airblue.com/flightinfo/schedule"
-IATA_LIST = scrapper.init_iata(DB_FILE, SCHEDULE_URL)
+IATA_LIST = scrapper.init_iata(DB_FILE)
 if isinstance(IATA_LIST, str):
     print(IATA_LIST)
     raise SystemExit(1)
@@ -31,8 +30,7 @@ if CHECK_DATES != 0:
     raise SystemExit(1)
 
 TRIP = INPUT_DATA[1:]
-SCHEDULE_URL = "https://www.airblue.com/sched/schedule_popup.asp"
-CHECK_SCHEDULE = sql.check_schedule(TRIP, DB_FILE, SCHEDULE_URL)
+CHECK_SCHEDULE = check_schedule(TRIP, DB_FILE)
 if len(CHECK_SCHEDULE[0]) == 0:
     print("No flights for " + str(TRIP[2]) + " and 2 next days")
     raise SystemExit(0)
@@ -42,7 +40,7 @@ ROUND_TRIP = True
 if len(TRIP) == 3:
     ROUND_TRIP = False
 
-RESERVATION = scrapper.scrap(TRIP, CHECK_SCHEDULE, ROUND_TRIP, URL)
+RESERVATION = scrapper.scrap(TRIP, CHECK_SCHEDULE, ROUND_TRIP)
 print("**********************")
 print(RESERVATION[0])
 for flight in RESERVATION[1]:
