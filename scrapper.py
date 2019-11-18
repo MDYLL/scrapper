@@ -64,7 +64,7 @@ def parse_flight(trip, content, flight_index):
     :param content: etree object
     :return: list of flights
     """
-    flight_trip = list()
+    flight_trip = []
     index_trip = 2
     while True:
         try:
@@ -106,7 +106,7 @@ def parse_xml(trip, content):
     :return: tuple of list of direct flights and list of back flights
     """
     flight_1_trip = parse_flight(trip, content, 0)
-    flight_2_trip = list()
+    flight_2_trip = []
     if not trip.date_2_trip:
         return tuple((flight_1_trip, flight_2_trip))
     flight_2_trip = parse_flight(trip, content, 1)
@@ -120,7 +120,7 @@ def get_iata_from_url():
     content = get_xml(SCHEDULE_URL, None)
     if content is None:
         return None
-    iata_list = list()
+    iata_list = []
     tree = html.fromstring(content)
     tag = tree.xpath('//div[@align="center"]')
     string_index = 0
@@ -241,9 +241,9 @@ def check_schedule(trip, filename):
         date_2_trip_weekday = date_2_trip.weekday()  # monday is 0
     else:
         date_2_trip_weekday = None
-    flight_possible = list()
-    flight_possible.append(list())
-    flight_possible.append(list())
+    flight_possible = []
+    flight_possible.append([])
+    flight_possible.append([])
     for i in range(3):
         if data_row1[0][3][(date_1_trip_weekday + i) % 7] == '+':
             flight_possible[0].append(i)
@@ -285,9 +285,9 @@ def scrap(trip, checked_schedule, round_trip):
     :param round_trip: true if round else false
     :return: reservation - message and list of the flights
     """
-    reservations = list()
+    reservations = []
     reservations.append("message")
-    reservations.append(list())
+    reservations.append([])
     if len(checked_schedule[1]) == 0 and round_trip:
         reservations[0] = "You could by ticket from " + trip[0] + " to " + \
                           trip[1] + " for next days:"
