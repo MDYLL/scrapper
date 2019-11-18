@@ -56,7 +56,7 @@ def check_return_flight(*args):
     :return: combination without impossible connection
     """
     combination = args[0]
-    check_combination = list()
+    check_combination = []
     for flight_ in combination:
         if (len(args) > 1 and args[1] != args[2]) or \
                 (time_sub(flight_[1].time_departure,
