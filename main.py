@@ -45,3 +45,4 @@ print("**********************")
 print(RESERVATION[0])
 for flight in RESERVATION[1]:
     print(flight)
+print("**********************")

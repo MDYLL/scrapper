@@ -104,7 +104,7 @@ def check_all_iata_in_db(filename, iata_list):
         cursor = conn.cursor()
         sql = "SELECT * FROM flight"
         cursor.execute(sql)
-    except sqlite3.OperationalError:
+    except (sqlite3.OperationalError, sqlite3.DatabaseError) as e:
         return "Bad DB file"
     lines_in_db = len(cursor.fetchall())
     conn.close()
