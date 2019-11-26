@@ -56,3 +56,18 @@ FROM: _IATA1_ DESTINATION: _IATA2_ DEPART: _time_d_ ARRIVE : _time_a_ TIME FLIGH
 
 TOTAL: _price_
 
+**********************
+
+where:
+
+time_d - departure time
+
+time_a - arrive time
+
+time_f - flight time
+
+class - class
+
+price - price in format 'USD 9,999'
+
+strings 2 and 3 for each flight in list
