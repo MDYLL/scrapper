@@ -18,7 +18,7 @@ format of dates is YYYY-MM-DD
 output data (console):
 
 
-0. in case of invalid data:
+0. in case of invalid data or some problems with url or database connetction:
 
 0.1. in case of quantity of args not 3 and not 4:
 
@@ -35,6 +35,14 @@ output data (console):
 0.4. in case of date2<date1:
 
 "Date of depart should be at future time"
+
+0.5. in case of problem with url connection:
+
+"No connection to URL"
+
+0.6. in case of problem with database file:
+
+"Bad DB file"
 
 1. in case of one way trip (date2 is absent):
 
