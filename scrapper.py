@@ -346,5 +346,5 @@ def scrap(trip, checked_schedule, round_trip):
                             reservations[1].append(flight)
                     return reservations
 
-    reservations[0] = "No flights for your dates"
+    reservations[0] = "No tickets for your dates"
     return reservations
