@@ -42,7 +42,17 @@ output data (console):
 
 "No flights for _date1_ and 2 next days"
 
-1.2. in case of there are no tickets for for date1 and two next days:
+1.2. else in case of there are no tickets for for date1 and two next days:
 
 "No tickets for your dates"
+
+1.3. else list of flights for nearest date sorted by price in format:
+
+**********************
+
+From _IATA1_ to _IATA2_ _nearest date_
+
+FROM: _IATA1_ DESTINATION: _IATA2_ DEPART: _time_d_ ARRIVE : _time_a_ TIME FLIGHT: _time_f_ CLASS: _class_ PRICE: _price_
+
+TOTAL: _price_
 
