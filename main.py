@@ -19,6 +19,11 @@ if isinstance(IATA_LIST, str):
     raise SystemExit(1)
 
 INPUT_DATA = sys.argv
+
+if len(INPUT_DATA) == 2 and INPUT_DATA[1] == 'init':
+    print("Database is initialized/updated")
+    raise SystemExit(0)
+
 CHECK_INPUT_DATA = checkdata.check_input_data(INPUT_DATA, IATA_LIST)
 if CHECK_INPUT_DATA != 0:
     print(CHECK_INPUT_DATA)
