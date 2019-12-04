@@ -286,7 +286,7 @@ def scrap(trip, checked_schedule, round_trip):
     :return: reservation - message and list of the flights
     """
     reservations = []
-    reservations.append("message")
+    reservations.append("")
     reservations.append([])
     if len(checked_schedule[1]) == 0 and round_trip:
         reservations[0] = "You could by ticket from " + trip[0] + " to " + \
@@ -304,6 +304,8 @@ def scrap(trip, checked_schedule, round_trip):
 
     for day in checked_schedule[0]:
         for day_back in checked_schedule[1]:
+            if day != 0 or day_back != 0:
+                reservations[0] = 'No tickets on your dates\n' + reservations[0]
             date_flight = datetime.date(
                 *list(map(int, trip[2].split('-')))) + datetime.timedelta(day)
             if round_trip:
@@ -323,7 +325,7 @@ def scrap(trip, checked_schedule, round_trip):
                 return reservations
             flight_list = parse_xml(current_trip, tree_xml)
             if len(flight_list[0]) != 0 and not round_trip:
-                reservations[0] = date_flight
+                reservations[0] += str(date_flight)
                 for flight in flight_list[0]:
                     reservations[1].append(flight)
                 return reservations
@@ -336,8 +338,8 @@ def scrap(trip, checked_schedule, round_trip):
                 checkdata.add_total_price(flight_combination)
                 flight_combination.sort(key=lambda x: x[2])
                 if len(flight_combination) > 0:
-                    reservations[0] = "From " + trip[0] + " to " + trip[1] \
-                                      + " " + str(date_flight)
+                    reservations[0] += "From " + trip[0] + " to " + trip[1] \
+                                       + " " + str(date_flight)
                     reservations[0] += "\n"
                     reservations[0] += "From " + trip[1] + " to " + trip[0] \
                                        + " " + str(date_flight_back)
