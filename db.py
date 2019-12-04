@@ -1,10 +1,11 @@
 """
 module of function for database
 """
-
+import datetime
 import sqlite3
 
 import checkdata
+import scrapper
 
 
 class TimeTable:
@@ -84,8 +85,10 @@ def init_db(filename, iata_list, prim_key):
                       "WHERE DEPART_IATA=? AND ARRIVE_IATA=?"
                 cursor.execute(sql, [depart, arrive])
                 if len(cursor.fetchall()) == 0:
+                    schedule_string=scrapper.get_data_from_schedule(depart,arrive,datetime.datetime.today())[0]
+
                     cursor.execute("INSERT INTO flight VALUES (?,?,?,?)",
-                                   (primary_key, depart, arrive, '0000000'))
+                                   (primary_key, depart, arrive, schedule_string))
                     conn.commit()
                     primary_key += 1
     conn.close()
